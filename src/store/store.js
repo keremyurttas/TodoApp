@@ -1,4 +1,6 @@
 import { createStore } from "vuex";
+import { firebase } from "firebase/app";
+
 import { api } from "@/api/api";
 import { filterFirebaseKeys } from "@/utils/utils";
 export default createStore({
@@ -31,6 +33,18 @@ export default createStore({
       console.log("data:", filteredData);
       console.log(error);
       console.log(state);
+    },
+    async login({ state }, user) {
+      try {
+        const val = await firebase
+          .auth()
+          .signInWithEmailAndPassword(user.email, user.password);
+        this.$router.push("/discussions");
+        window.localStorage.setItem("activeUser", val.user.email);
+        console.log(state);
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
   modules: {},

@@ -4,6 +4,8 @@ import router from "./router";
 import "./assets/index.css";
 import store from "./store/store";
 import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+
 // import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -11,19 +13,18 @@ import { initializeApp } from "firebase/app";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyCWismL2AJyZHh6rqZJZr0_4EpliF_vT2U",
-  authDomain: "vuejs-vue-resource-6f650.firebaseapp.com",
-  databaseURL: "https://vuejs-vue-resource-6f650-default-rtdb.firebaseio.com",
-  projectId: "vuejs-vue-resource-6f650",
-  storageBucket: "vuejs-vue-resource-6f650.appspot.com",
-  messagingSenderId: "114261711164",
-  appId: "1:114261711164:web:e532d99c569b3cea2fe639",
-  measurementId: "G-F972W57BKC",
+  apiKey: "AIzaSyDdsugfb5maBzzc7UADH88ykmOsHbcMIh0",
+  authDomain: "userdata-c16bc.firebaseapp.com",
+  projectId: "userdata-c16bc",
+  storageBucket: "userdata-c16bc.appspot.com",
+  messagingSenderId: "386939086912",
+  appId: "1:386939086912:web:bdedab2f85a970390c97a5",
 };
 
 // Initialize Firebase
-const firebase = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
 // const analytics = getAnalytics(app);
 
-createApp(App).use(store).use(router).use(firebase).mount("#app");
+createApp(App).use(store).use(router).use(app).use(auth).mount("#app");
