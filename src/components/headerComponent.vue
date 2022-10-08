@@ -29,31 +29,39 @@
   </div>
 </template>
 <script>
-// import firebase from "firebase";
-// import { eventBus } from "../main";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 
-// export default {
-//   data() {
-//     return {
-//       user: null,
-//     };
-//   },
-//   created() {
-//     firebase.auth().onAuthStateChanged((user) => {
-//       if (user) {
-//         this.user = user;
-//       } else {
-//         this.user = null;
-//       }
-//     });
-//   },
-//   methods: {
-//     logOut() {
-//       firebase.auth().signOut();
-//     },
-//     allDiscussions() {
-//       eventBus.$emit("sendDiscussions");
-//     },
-//   },
-// };
+export default {
+  data() {
+    return {
+      user: null,
+    };
+  },
+  created() {
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/firebase.User
+        this.user = user;
+        // ...
+      } else {
+        this.user = null;
+      }
+    });
+  },
+  methods: {
+    logOut() {
+      const auth = getAuth();
+      signOut(auth)
+        .then(() => {
+          // Sign-out successful.
+        })
+        .catch((error) => {
+          console.log(error);
+          // An error happened.
+        });
+    },
+  },
+};
 </script>
