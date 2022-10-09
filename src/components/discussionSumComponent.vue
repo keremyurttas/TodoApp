@@ -38,11 +38,11 @@ export default {
   methods: {
     test() {
       this.$router.push("/discussion/" + this.discussionInfo.key);
-
-      window.localStorage.setItem(
-        "activeDiscussion",
-        JSON.stringify(this.discussionInfo)
-      );
+      // this.$store.commit("updateActiveDisscussion", this.discussionInfo.key);
+      // window.localStorage.setItem(
+      //   "activeDiscussion",
+      //   JSON.stringify(this.discussionInfo)
+      // );
     },
   },
   computed: {

@@ -36,7 +36,7 @@
       v-if="isCreatePopupShowing"
       @closePopup="isCreatePopupShowing = $event"
     ></create-discussion-popup>
-
+    <button @click="test">test</button>
     <div class="flex justify-center flex-wrap items-center space-y-6">
       <discussion-sum-component
         v-for="(discussion, index) in searchFunction"
@@ -136,6 +136,9 @@ export default {
       // newDisc.key = data
       // this.allDiscussions.push(newD)
     },
+    test() {
+      console.log(this.$store.state.allDiscussions);
+    },
 
     // filterFirebaseKeys(data) {
     //   let arr = [];
@@ -197,35 +200,37 @@ export default {
     //     });
     // },
   },
-
-  async created() {
+  async mounted() {
     await this.$store.dispatch("fetchData");
     this.allDiscussions = this.$store.state.allDiscussions;
-    // eventBus.$on("data", (data) => {
-    //   console.log("discussions");
-    //   this.allDiscussions = data;
-    // });
-    // this.allDiscussions = JSON.parse(
-    //   window.localStorage.getItem("allDiscussions")
-    // );
-    // eventBus.$on("updateDiscussionsPage", () => {
-    //   this.allDiscussions = JSON.parse(
-    //     window.localStorage.getItem("allDiscussions")
-    //   );
-    //   console.log(this.allDiscussions);
-    // });
-    // this.fetchDiscussions();
-    // eventBus.$on("request",()=>{
-    //   eventBus.$emit("allDiscussions",this.allDiscussions)
-    // })
-    // eventBus.$on("sendNewComment", (comment) => {
-    //   this.allDiscussions.forEach((dc) => {
-    //     if (dc.key == comment.key) {
-    //       dc.comments.push(comment);
-    //       eventBus.$emit("allDiscussions", this.allDiscussions);
-    //     }
-    //   });
-    // });
+    console.log(this.$store.state.allDiscussions);
+    this.$store.commit("fetchActiveDisccusion", this.$route.params.id);
   },
+
+  // eventBus.$on("data", (data) => {
+  //   console.log("discussions");
+  //   this.allDiscussions = data;
+  // });
+  // this.allDiscussions = JSON.parse(
+  //   window.localStorage.getItem("allDiscussions")
+  // );
+  // eventBus.$on("updateDiscussionsPage", () => {
+  //   this.allDiscussions = JSON.parse(
+  //     window.localStorage.getItem("allDiscussions")
+  //   );
+  //   console.log(this.allDiscussions);
+  // });
+  // this.fetchDiscussions();
+  // eventBus.$on("request",()=>{
+  //   eventBus.$emit("allDiscussions",this.allDiscussions)
+  // })
+  // eventBus.$on("sendNewComment", (comment) => {
+  //   this.allDiscussions.forEach((dc) => {
+  //     if (dc.key == comment.key) {
+  //       dc.comments.push(comment);
+  //       eventBus.$emit("allDiscussions", this.allDiscussions);
+  //     }
+  //   });
+  // });
 };
 </script>

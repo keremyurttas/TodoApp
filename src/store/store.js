@@ -6,7 +6,11 @@ export default createStore({
   state: {
     allDiscussions: [],
   },
-  getters: {},
+  getters: {
+    fetchActiveDisccusion: (state) => (key) => {
+      return state.allDiscussions.find((dsc) => dsc.key == key);
+    },
+  },
   mutations: {
     SendNewDiscussionToLocal(state, payload) {
       state.allDiscussions.push({
@@ -16,6 +20,29 @@ export default createStore({
         comments: [],
       });
     },
+    fetchActiveDisccusion(state, payload) {
+      const activeDsc = state.allDiscussions;
+      console.log(activeDsc);
+      console.log(payload);
+    },
+    deleteCommentOnLocal(state, payload) {
+      let activeDiscussion = state.allDiscussions.find(
+        (dsc) => dsc.key == payload.discussionKey
+      );
+      let vote = activeDiscussion.comments.findIndex(
+        (comment) => comment.key == payload.commentKey
+      );
+      activeDiscussion.comments.splice(vote, 1);
+    },
+    addNewCommentToLocal(state, payload) {
+      let activeDiscussion = state.allDiscussions.find(
+        (dsc) => dsc.key == payload.discussionKey
+      );
+      activeDiscussion.comments.push(payload);
+    },
+    // updateActiveDisscussion(state , payload){
+
+    // }
   },
   actions: {
     // getUsers({ state }) {
@@ -33,19 +60,19 @@ export default createStore({
     async fetchData({ state }) {
       const [error, data] = await api({ method: "get", URL: "/.json" });
       // state.allDiscussions = data;
-      let allDiscussions = data;
-      allDiscussions = filterFirebaseKeys(data);
-      allDiscussions = await allDiscussions.map((dc) => ({
+      let allDiscussionsData = data;
+      allDiscussionsData = filterFirebaseKeys(data);
+      allDiscussionsData = await allDiscussionsData.map((dc) => ({
         ...dc,
         comments: filterFirebaseKeys(dc.comments),
       }));
-      allDiscussions.forEach((dsc) => {
+      allDiscussionsData.forEach((dsc) => {
         dsc.comments.forEach((comment) => {
           comment.vote = filterFirebaseKeys(comment.vote);
         });
       });
-      state.allDiscussions = allDiscussions;
-      console.log("data:", allDiscussions);
+      state.allDiscussions = allDiscussionsData;
+      console.log("data:", allDiscussionsData);
       console.log(state);
       return error;
     },
@@ -59,6 +86,26 @@ export default createStore({
           createdTime: payload.time,
           comments: [],
         },
+      });
+      console.log(state);
+      console.log(data);
+      return err;
+    },
+    async deleteComment({ state }, payload) {
+      const [error, data] = await api({
+        method: "delete",
+        URL: `/${payload.discussionKey}/comments/${payload.commentKey}.json`,
+      });
+      console.log(payload);
+      console.log(data);
+      console.log(state);
+      return error;
+    },
+    async sendNewComment({ state }, payload) {
+      const [err, data] = await api({
+        method: "post",
+        URL: `/${payload.discussionKey}/comments.json`,
+        body: payload,
       });
       console.log(state);
       console.log(data);

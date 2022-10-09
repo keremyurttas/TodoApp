@@ -5,6 +5,7 @@
 <script>
 import headerComponent from "@/components/headerComponent.vue";
 export default {
+  async created() {},
   components: { headerComponent },
 };
 </script>
