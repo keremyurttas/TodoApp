@@ -6,21 +6,19 @@
       <div class="mb-4 text-center text-md">The Discussion</div>
       <div>
         <div class="min-h-min text-xl mb-2 text break-words">
-          {{ discussion.subject }}
-          {{ activeDiss }}
+          {{ sortComments.subject }}
         </div>
         <div class="flex items-center space-x-4 flex-col border-t-2 mt-8">
           <p
             class="text-sm font-medium text-gray-900 truncate dark:text-white mt-2"
           >
-            {{ discussion.owner }}
+            {{ sortComments.owner }}
           </p>
-
           <div
             @click="showMore = !showMore"
             class="text-md text-gray-500 dark:text-gray-400"
           >
-            {{ discussion.createdTime }}
+            {{ sortComments.createdTime }}
           </div>
         </div>
       </div>
@@ -32,7 +30,7 @@
       >
         <comment
           :key="index"
-          v-for="(comment, index) in discussion.comments"
+          v-for="(comment, index) in sortComments.comments"
           :data="comment"
         ></comment>
       </ul>
@@ -56,36 +54,36 @@ export default {
     };
   },
   computed: {
-    // sortComments() {
-    //   let sortedComments = this.discussion.comments;
-    //   sortedComments.forEach((comment) => {
-    //     comment.discussionKey = this.discussionKey;
-    //   });
-    //   ///****vote sıralama işlemleri
-    //   // sortedComments.forEach((comment) => {
-    //   //   if (comment.vote == undefined) {
-    //   //     comment.voteCount = 0;
-    //   //   } else {
-    //   //     comment.voteCount = Object.keys(comment.vote).length;
-    //   //   }
-    //   //   console.log(sortedComments);
-    //   // });
-    //   //   sortedComments.forEach(comm=>{
-    //   //    if( comm.vote===undefined){
-    //   //     comm.vote=[];
-    //   //    }
-    //   //   })
-    //   // console.log(Array.isArray(sortedComments.vote))
-    //   // sortedComments = sortedComments.sort((a,b)=>
-    //   // Object.values(a.voteCount) <
-    //   //   Object.values(b.voteCount) ? -1 : 1
-    //   // )
-    //   // sortedComments.forEach(comment=>{
-    //   //   comment.discussionKey=this.discussionKey
-    //   // })
-    //   // console.log(sortedComments)
-    //   return sortedComments;
-    // },
+    sortComments() {
+      let allData = this.fetchActiveDisccusion;
+      allData.comments = this.fetchActiveDisccusion.comments;
+      allData.comments.sort((a, b) => (a.vote.length < b.vote.length ? 1 : -1));
+      // sortedComments.forEach((comment) => {
+      //   if (comment.vote == undefined) {
+      //     comment.voteCount = 0;
+      //   } else {
+      //     comment.voteCount = Object.keys(comment.vote).length;
+      //   }
+      //   console.log(sortedComments);
+      // });
+      // sortedComments.forEach((comm) => {
+      //   if (comm.vote === undefined) {
+      //     comm.vote = [];
+      //   }
+      // });
+      // console.log(Array.isArray(sortedComments.vote));
+      // sortedComments = sortedComments.sort((a, b) =>
+      //   Object.values(a.voteCount) < Object.values(b.voteCount) ? -1 : 1
+      // );
+      // sortedComments.forEach((comment) => {
+      //   comment.discussionKey = this.discussionKey;
+      // });
+      // console.log(sortedComments);
+      return allData;
+    },
+    fetchActiveDisccusion() {
+      return this.$store.getters.fetchActiveDisccusion(this.discussionKey);
+    },
   },
 
   methods: {
@@ -137,12 +135,12 @@ export default {
 
   created() {
     // this.$store.commit("fetchActiveDisccusion", this.$route.params.id);
-    this.discussion = this.$store.getters.fetchActiveDisccusion(
-      this.$route.params.id
-    );
-    console.log(
-      this.$store.getters.fetchActiveDisccusion(this.$route.params.id)
-    );
+    // this.discussion = this.$store.getters.fetchActiveDisccusion(
+    //   this.$route.params.id
+    // );
+    // console.log(
+    //   this.$store.getters.fetchActiveDisccusion(this.$route.params.id)
+    // );
     // this.discussion = JSON.parse(
     //   window.localStorage.getItem("activeDiscussion")
     // );

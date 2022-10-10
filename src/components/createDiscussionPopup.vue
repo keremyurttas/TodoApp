@@ -50,7 +50,6 @@ export default {
     },
     async createNewDiscussion() {
       this.$store.dispatch("sendNewDiscussion", this.discussion);
-      this.$store.commit("SendNewDiscussionToLocal", this.discussion);
       this.$emit("closePopup", false);
     },
     //   if (this.discussionSubject.trim() !== "") {

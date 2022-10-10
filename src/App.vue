@@ -5,7 +5,9 @@
 <script>
 import headerComponent from "@/components/headerComponent.vue";
 export default {
-  async created() {},
+  async created() {
+    await this.$store.dispatch("fetchData");
+  },
   components: { headerComponent },
 };
 </script>

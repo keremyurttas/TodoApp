@@ -59,8 +59,7 @@ export default {
     },
     async sendCommentTest() {
       if (this.comment.text.trim() != "") {
-        this.$store.dispatch("sendNewComment", this.comment);
-        this.$store.commit("addNewCommentToLocal", { ...this.comment });
+        this.$store.dispatch("sendNewComment", { ...this.comment });
         this.comment.text = "";
       } else alert("Text area can't be empty");
     },

@@ -71,7 +71,7 @@ export default {
   },
   computed: {
     sortedArrayFunc() {
-      let sortedDiscussions = this.allDiscussions;
+      let sortedDiscussions = this.fetchDiscussions;
 
       if (this.selected == "alphabetically") {
         sortedDiscussions = sortedDiscussions.sort((a, b) => {
@@ -124,6 +124,9 @@ export default {
       );
       console.log(sortedDiscussions);
       return sortedDiscussions;
+    },
+    fetchDiscussions() {
+      return this.$store.state.allDiscussions;
     },
   },
 
@@ -200,11 +203,10 @@ export default {
     //     });
     // },
   },
-  async mounted() {
-    await this.$store.dispatch("fetchData");
-    this.allDiscussions = this.$store.state.allDiscussions;
-    console.log(this.$store.state.allDiscussions);
-    this.$store.commit("fetchActiveDisccusion", this.$route.params.id);
+  created() {
+    // console.log(this.$store.state.allDiscussions);
+    // this.allDiscussions = this.$store.state.allDiscussions;
+    // this.$store.commit("fetchActiveDisccusion", this.$route.params.id);
   },
 
   // eventBus.$on("data", (data) => {

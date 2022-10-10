@@ -62,8 +62,7 @@
   </div>
 </template>
 <script>
-import axios from "axios";
-import { api } from "../api/api";
+// import axios from "axios";
 
 export default {
   data() {
@@ -74,6 +73,7 @@ export default {
       commentInfo: {
         commentKey: this.data.key,
         discussionKey: this.data.discussionKey,
+        email: localStorage.getItem("activeUser"),
       },
     };
   },
@@ -92,6 +92,12 @@ export default {
       return emails.includes(this.currentUser);
     },
   },
+  watch: {
+    data(newV, old) {
+      console.log(old);
+      this.commentInfo = newV;
+    },
+  },
   methods: {
     test() {
       console.log(this.data);
@@ -99,17 +105,6 @@ export default {
     async deleteComment() {
       if (this.data.owner === this.currentUser) {
         this.$store.dispatch("deleteComment", this.commentInfo);
-        this.$store.commit("deleteCommentOnLocal", this.commentInfo);
-        // const [error, data] = await api({
-        //   method: "delete",
-        //   URL: `/${this.data.discussionKey}/comments/${this.data.key}.json`,
-        // });
-        // console.log(data);
-        // console.log(this.data);
-        // eventBus.$emit("deleteComment", this.data);
-        // await axios.delete(
-        //   `https://vuejs-vue-resource-6f650-default-rtdb.firebaseio.com/discussions/${this.data.discussionKey}/comments/${this.data.commentKey}.json`
-        // );
       } else {
         alert("You can't delete different account's comment");
       }
@@ -118,19 +113,21 @@ export default {
     async vote() {
       if (this.checkIsUserVoted) {
         this.isVoteLoading = true;
+        console.log(this.commentInfo.commentKey);
+        this.$store.dispatch("deleteVote", this.commentInfo);
+        this.isVoteLoading = false;
+        // const index = this.data.vote.findIndex(
+        //   (d) => d.vote === this.currentUser
+        // );
 
-        const index = this.data.vote.findIndex(
-          (d) => d.vote === this.currentUser
-        );
-
-        axios
-          .delete(
-            `https://vuejs-vue-resource-6f650-default-rtdb.firebaseio.com/discussions/${this.data.discussionKey}/comments/${this.data.key}/vote/${this.data.vote[index].key}.json`
-          )
-          .then((resp) => {
-            console.log(resp);
-            this.isVoteLoading = false;
-          });
+        // axios
+        //   .delete(
+        //     `https://vuejs-vue-resource-6f650-default-rtdb.firebaseio.com/discussions/${this.data.discussionKey}/comments/${this.data.key}/vote/${this.data.vote[index].key}.json`
+        //   )
+        //   .then((resp) => {
+        //     console.log(resp);
+        //     this.isVoteLoading = false;
+        //   });
 
         // eventBus.$emit("deleteVote", {
         //   vote: this.currentUser,
@@ -174,12 +171,20 @@ export default {
         // }
       } else {
         this.isVoteLoading = true;
-        const [error, data] = await api({
-          method: "post",
-          URL: `/${this.data.discussionKey}/comments/${this.data.key}/vote.json`,
-          body: { vote: this.currentUser },
+        console.log("commentkey:", this.commentInfo.commentKey);
+        console.log(this.commentInfo);
+        console.log("data is ", this.data);
+        this.$store.dispatch("newVote", {
+          commentKey: this.data.key,
+          discussionKey: this.data.discussionKey,
+          email: localStorage.getItem("activeUser"),
         });
-        console.log(data);
+        // const [error, data] = await api({
+        //   method: "post",
+        //   URL: `/${this.data.discussionKey}/comments/${this.data.key}/vote.json`,
+        //   body: { vote: this.currentUser },
+        // });
+        // console.log(data);
         // eventBus.$emit("newVote", {
         //   vote: this.currentUser,
         //   key: data.name,
@@ -187,7 +192,7 @@ export default {
         //   discussionKey: this.data.discussionKey,
         // });
         this.isVoteLoading = false;
-        return error;
+        // return error;
       }
     },
   },
