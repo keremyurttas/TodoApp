@@ -48,6 +48,8 @@ export default {
         .then((userCredential) => {
           // Signed in
           console.log(userCredential);
+          const user = userCredential.user;
+          window.localStorage.setItem("activeUser", user.email);
           // ...
         })
 

@@ -54,9 +54,13 @@ export default {
       signInWithEmailAndPassword(auth, this.user.email, this.user.password)
         .then((userCredential) => {
           // Signed in
+
           this.$router.push("/discussions");
-          window.localStorage.setItem("activeUser", user.email);
+
           const user = userCredential.user;
+
+          window.localStorage.setItem("activeUser", user.email);
+          console.log("eamil", user.email);
           console.log(user);
         })
         .catch((error) => {

@@ -14,6 +14,7 @@
             class="text-sm font-medium text-gray-900 truncate dark:text-white mt-2"
           >
             {{ data.owner }}
+            {{ this.data.key }}
           </p>
           <transition name="moreComment">
             <div
@@ -92,15 +93,10 @@ export default {
       return emails.includes(this.currentUser);
     },
   },
-  watch: {
-    data(newV, old) {
-      console.log(old);
-      this.commentInfo = newV;
-    },
-  },
   methods: {
     test() {
       console.log(this.data);
+      console.log(this.data.vote);
     },
     async deleteComment() {
       if (this.data.owner === this.currentUser) {
@@ -110,7 +106,7 @@ export default {
       }
     },
 
-    async vote() {
+    vote() {
       if (this.checkIsUserVoted) {
         this.isVoteLoading = true;
         console.log(this.commentInfo.commentKey);
@@ -172,7 +168,7 @@ export default {
       } else {
         this.isVoteLoading = true;
         console.log("commentkey:", this.commentInfo.commentKey);
-        console.log(this.commentInfo);
+        console.log("datakey", this.data.key);
         console.log("data is ", this.data);
         this.$store.dispatch("newVote", {
           commentKey: this.data.key,

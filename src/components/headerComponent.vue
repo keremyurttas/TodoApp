@@ -56,6 +56,7 @@ export default {
       signOut(auth)
         .then(() => {
           // Sign-out successful.
+          window.localStorage.removeItem("activeUser");
         })
         .catch((error) => {
           console.log(error);

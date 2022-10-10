@@ -35,14 +35,16 @@
     <create-discussion-popup
       v-if="isCreatePopupShowing"
       @closePopup="isCreatePopupShowing = $event"
-    ></create-discussion-popup>
+    >
+    </create-discussion-popup>
     <button @click="test">test</button>
     <div class="flex justify-center flex-wrap items-center space-y-6">
       <discussion-sum-component
         v-for="(discussion, index) in searchFunction"
         :key="index"
         :discussionInfo="discussion"
-      ></discussion-sum-component>
+      >
+      </discussion-sum-component>
       <!-- <div :key="i"
         v-for="(discussion,i) in searchFunction">
         {{discussion}}
@@ -141,6 +143,8 @@ export default {
     },
     test() {
       console.log(this.$store.state.allDiscussions);
+      window.localStorage.setItem("sa", "eheee");
+      console.log(window.localStorage.getItem("sa"));
     },
 
     // filterFirebaseKeys(data) {

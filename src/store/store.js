@@ -44,15 +44,21 @@ export default createStore({
       activeDiscussion.comments.push(payload);
     },
     newVoteLocal(state, payload) {
-      console.log(state);
-      console.log(payload);
       let activeDiscussion = state.allDiscussions.find(
         (dsc) => dsc.key == payload.discussionKey
       );
-      let activeComment = activeDiscussion.comments.find(
+      let activeCommentIndex = activeDiscussion.comments.findIndex(
         (comment) => comment.key == payload.commentKey
       );
-      activeComment.vote.push({ vote: payload.email, key: payload.key });
+      console.log("index is", activeCommentIndex);
+      console.log(
+        Array.isArray(activeDiscussion.comments[activeCommentIndex].vote)
+      );
+      activeDiscussion.comments[activeCommentIndex].vote.push({
+        vote: " payload.email",
+        // key: payload.key,
+        // commentKey: payload.commentKey,
+      });
     },
     deleteVoteLocal(state, payload) {
       let activeDiscussion = state.allDiscussions.find(
@@ -140,7 +146,7 @@ export default createStore({
       console.log(state);
       payload.key = data.name;
       this.commit("addNewCommentToLocal", payload);
-      console.log(data.name);
+      console.log("gönderilen data", payload);
       return err;
     },
     async newVote({ state }, payload) {
@@ -151,6 +157,7 @@ export default createStore({
         )
         .then((resp) => {
           payload.key = resp.data.name;
+          console.log("gönderilen payload", payload);
           this.commit("newVoteLocal", { ...payload });
           console.log(state);
         });
