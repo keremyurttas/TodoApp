@@ -1,201 +1,178 @@
 import { createStore } from "vuex";
-
+import axios from "axios";
 import { api } from "@/api/api";
 import { filterFirebaseKeys } from "@/utils/utils";
-import axios from "axios";
 
 export default createStore({
   state: {
-    allDiscussions: [],
+    todos: [],
+    loadingStatus: false,
   },
   getters: {
-    fetchActiveDisccusion: (state) => (key) => {
-      return state.allDiscussions.find((dsc) => dsc.key == key);
+    getTodos(state) {
+      return state.todos;
+    },
+    getBarValue(state) {
+      let allTodos = state.todos;
+      let completedTodos = allTodos.filter((todo) => todo.completed == true);
+      let progress = Math.floor(
+        (completedTodos.length / allTodos.length) * 100
+      );
+      if (Number.isNaN(progress)) {
+        progress = 0;
+      }
+      return progress;
+    },
+    showCompleteds(state) {
+      let completeds = state.todos.filter((todo) => todo.completed == true);
+      if (completeds.length == 0) completeds = false;
+      return completeds;
+    },
+    fetchAllUncompletedTodos(state) {
+      let uncompleteds = state.todos.filter((todo) => todo.completed == false);
+      if (uncompleteds.length == 0) uncompleteds = false;
+      return uncompleteds;
+    },
+    getLoadingStatus(state) {
+      return state.loadingStatus;
     },
   },
   mutations: {
-    SendNewDiscussionToLocal(state, payload) {
-      state.allDiscussions.push({
-        subject: payload.discussionSubject,
-        owner: localStorage.getItem("activeUser"),
-        createdTime: payload.time,
-        key: payload.key,
-        comments: [],
-      });
+    newTodoLocal(state, payload) {
+      state.todos.push(payload);
+      console.log(state.todos);
+      state.loadingStatus = false;
     },
-    fetchActiveDisccusion(state, payload) {
-      const activeDsc = state.allDiscussions;
-      console.log(activeDsc);
-      console.log(payload);
+    deleteTodoLocal(state, payload) {
+      let todos = state.todos;
+      let index = todos.findIndex((todo) => todo.key == payload.key);
+      console.log(index);
+      todos.splice(index, 1);
+      console.log(todos);
+      state.todos = todos;
+      state.loadingStatus = false;
     },
-    deleteCommentOnLocal(state, payload) {
-      let activeDiscussion = state.allDiscussions.find(
-        (dsc) => dsc.key == payload.discussionKey
-      );
-      let vote = activeDiscussion.comments.findIndex(
-        (comment) => comment.key == payload.commentKey
-      );
-      activeDiscussion.comments.splice(vote, 1);
+    completeTodoLocal(state, payload) {
+      let completedTodo = state.todos.find((todo) => todo.key == payload.key);
+      completedTodo.completed = true;
+      state.loadingStatus = false;
     },
-    addNewCommentToLocal(state, payload) {
-      let activeDiscussion = state.allDiscussions.find(
-        (dsc) => dsc.key == payload.discussionKey
-      );
-      activeDiscussion.comments.push(payload);
+    editTodoLocal(state, payload) {
+      let editedTodo = state.todos.find((todo) => todo.key == payload.key);
+      editedTodo.text = payload.newText;
+      editedTodo.color = payload.newColor;
+      state.loadingStatus = false;
     },
-    newVoteLocal(state, payload) {
-      let activeDiscussion = state.allDiscussions.find(
-        (dsc) => dsc.key == payload.discussionKey
-      );
-      let activeCommentIndex = activeDiscussion.comments.findIndex(
-        (comment) => comment.key == payload.commentKey
-      );
-      console.log("index is", activeCommentIndex);
-      console.log(
-        Array.isArray(activeDiscussion.comments[activeCommentIndex].vote)
-      );
-      activeDiscussion.comments[activeCommentIndex].vote.push({
-        vote: " payload.email",
-        // key: payload.key,
-        // commentKey: payload.commentKey,
-      });
+    uncompleteTodoLocal(state, payload) {
+      let uncompletedTodo = state.todos.find((todo) => todo.key == payload.key);
+      uncompletedTodo.completed = false;
+      state.loadingStatus = false;
     },
-    deleteVoteLocal(state, payload) {
-      let activeDiscussion = state.allDiscussions.find(
-        (dsc) => dsc.key == payload.discussionKey
-      );
-      let activeComment = activeDiscussion.comments.find(
-        (comment) => comment.key == payload.commentKey
-      );
-      let activeVoteIndex = activeComment.vote.findIndex(
-        (vote) => vote.vote == payload.email
-      );
-      activeComment.vote.splice(activeVoteIndex, 1);
-      console.log(state);
-    },
-    // updateActiveDisscussion(state , payload){
-
-    // }
   },
   actions: {
-    // getUsers({ state }) {
-    //   state.users = [
-    //     {
-    //       name: "kerem",
-    //       age: 20,
-    //     },
-    //     {
-    //       name: "rahmi",
-    //       age: 30,
-    //     },
-    //   ];
-    // },
     async fetchData({ state }) {
+      state.loadingStatus = true;
       const [error, data] = await api({ method: "get", URL: "/.json" });
       // state.allDiscussions = data;
-      let allDiscussionsData = data;
-      allDiscussionsData = filterFirebaseKeys(data);
-      allDiscussionsData = await allDiscussionsData.map((dc) => ({
-        ...dc,
-        comments: filterFirebaseKeys(dc.comments),
-      }));
-      allDiscussionsData.forEach((dsc) => {
-        dsc.comments.forEach((comment) => {
-          comment.vote = filterFirebaseKeys(comment.vote);
-        });
-      });
-      state.allDiscussions = allDiscussionsData;
-      console.log("data:", allDiscussionsData);
+
+      console.log("data:", data);
+      let todos = data;
+
+      todos = filterFirebaseKeys(data);
+      this.state.todos = todos;
       console.log(state);
       return error;
     },
-    async sendNewDiscussion({ state }, payload) {
-      const [err, data] = await api({
-        method: "post",
-        URL: `.json`,
-        body: {
-          subject: payload.discussionSubject,
-          owner: localStorage.getItem("activeUser"),
-          createdTime: payload.time,
-          comments: [],
-        },
-      });
-      payload.key = data.name;
-      console.log(payload.key);
-      this.commit("SendNewDiscussionToLocal", payload);
-      console.log(state);
-      console.log(data);
-      return err;
-    },
-    async deleteComment({ state }, payload) {
-      const [error, data] = await api({
-        method: "delete",
-        URL: `/${payload.discussionKey}/comments/${payload.commentKey}.json`,
-      });
-      this.commit("deleteCommentOnLocal", payload);
-      console.log(data);
-      console.log(state);
-      return error;
-    },
-    async sendNewComment({ state }, payload) {
-      const [err, data] = await api({
-        method: "post",
-        URL: `/${payload.discussionKey}/comments.json`,
-        body: payload,
-      });
-      console.log(state);
-      payload.key = data.name;
-      this.commit("addNewCommentToLocal", payload);
-      console.log("gönderilen data", payload);
-      return err;
-    },
-    async newVote({ state }, payload) {
+    async newTodo({ state }, payload) {
+      state.loadingStatus = true;
       await axios
         .post(
-          `https://vuejs-vue-resource-6f650-default-rtdb.firebaseio.com/discussions/${payload.discussionKey}/comments/${payload.commentKey}/vote.json`,
-          { vote: payload.email }
+          "https://todoa-6e60d-default-rtdb.firebaseio.com/todos.json",
+          payload
         )
-        .then((resp) => {
-          payload.key = resp.data.name;
-          console.log("gönderilen payload", payload);
-          this.commit("newVoteLocal", { ...payload });
-          console.log(state);
+        .then((data) => {
+          console.log(data);
+          let todo = payload;
+          todo.key = data.data.name;
+          console.log(todo);
+          this.commit("newTodoLocal", todo);
         });
 
-      // const [error, data] = api({
+      // const [error, data] = await api({
       //   method: "post",
-      //   URL: `/${payload.discussionKey}/comments/${payload.commentKey}/vote.json`,
-      //   body: { vote: payload.email },
+      //   URL: ".json",
+      //   body: { sa: "payload" },
       // });
-      // console.log(state);
-      // console.log(data);
-      // console.log(payload);
-      // return error;
-    },
-    async deleteVote({ state }, payload) {
-      let activeDiscussion = state.allDiscussions.find(
-        (dsc) => dsc.key == payload.discussionKey
-      );
-      let activeComment = activeDiscussion.comments.find(
-        (comment) => comment.key == payload.commentKey
-      );
-      console.log(payload.commentKey);
-      let activeVote = activeComment.vote.find(
-        (vote) => vote.vote == payload.email
-      );
-      console.log(activeVote);
-      let voteKey = activeVote.key;
 
-      await axios
-        .delete(
-          `https://vuejs-vue-resource-6f650-default-rtdb.firebaseio.com/discussions/${payload.discussionKey}/comments/${payload.commentKey}/vote/${voteKey}.json`
+      console.log(state);
+    },
+    async deleteTodo({ state }, payload) {
+      state.loadingStatus = true;
+      const [error, data] = await api({
+        method: "delete",
+        URL: `${payload.key}.json`,
+      });
+      console.log(data);
+      console.log(state);
+      if (error) console.log(error);
+      this.commit("deleteTodoLocal", payload);
+    },
+    async completeTodo({ state }, payload) {
+      state.loadingStatus = true;
+      axios
+        .put(
+          `https://todoa-6e60d-default-rtdb.firebaseio.com/todos/${payload.key}.json`,
+          {
+            text: payload.text,
+            completed: true,
+          }
         )
         .then((resp) => {
-          this.commit("deleteVoteLocal", payload);
+          this.commit("completeTodoLocal", payload);
           console.log(resp);
           console.log(state);
+          console.log(payload);
+        });
+      // const [error, data] = await api({
+      //   method: "put",
+      //   URL: `${payload.key}.json`,
+      // });
+      // console.log(data);
+      // console.log(state);
+      // if (error);
+    },
+    async editTodo({ state }, payload) {
+      state.loadingStatus = true;
+      axios
+        .put(
+          `https://todoa-6e60d-default-rtdb.firebaseio.com/todos/${payload.key}.json`,
+          {
+            color: payload.newColor,
+            text: payload.newText,
+            completed: false,
+          }
+        )
+        .then(() => {
+          console.log(state);
+          console.log(payload);
+          this.commit("editTodoLocal", payload);
+        });
+    },
+    async uncompletedTodo({ state }, payload) {
+      state.loadingStatus = true;
+      axios
+        .put(
+          `https://todoa-6e60d-default-rtdb.firebaseio.com/todos/${payload.key}.json`,
+          {
+            text: payload.newText,
+            completed: false,
+          }
+        )
+        .then(() => {
+          console.log(state);
+          console.log(payload);
+          this.commit("uncompleteTodoLocal", payload);
         });
     },
   },
-  modules: {},
 });

@@ -2,8 +2,7 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL:
-    "https://vuejs-vue-resource-6f650-default-rtdb.firebaseio.com/discussions",
+  baseURL: "https://todoa-6e60d-default-rtdb.firebaseio.com/todos/",
 });
 
 export async function api(params) {

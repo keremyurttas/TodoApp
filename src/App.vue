@@ -1,14 +1,19 @@
 <template>
-  <header-component></header-component>
-  <router-view class="pt-20"></router-view>
+  <router-view></router-view>
+  <div
+    v-if="getLoadingStatus"
+    class="fixed top-0 right-0 w-screen h-screen flex items-center justify-center bg-gray-200 opacity-40"
+  >
+    <img src="./assets/loading-loading-forever.gif" class="w-20 h-20" alt="" />
+  </div>
 </template>
 <script>
-import headerComponent from "@/components/headerComponent.vue";
 export default {
-  async created() {
-    await this.$store.dispatch("fetchData");
+  computed: {
+    getLoadingStatus() {
+      return this.$store.getters.getLoadingStatus;
+    },
   },
-  components: { headerComponent },
 };
 </script>
 
