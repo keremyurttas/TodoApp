@@ -33,10 +33,6 @@ export default {
           color: "#FED99B",
           //for create random colors
           //"#"  +((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0"),
-
-          order:
-            this.$store.state.todos.filter((todo) => todo.completed == false)
-              .length + 1,
         });
         this.text = "";
       }

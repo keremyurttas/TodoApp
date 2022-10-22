@@ -72,9 +72,7 @@ import { startDrag } from "@/utils/utils";
 export default {
   components: { todoComponent },
   data() {
-    return {
-      allTodos: [],
-    };
+    return {};
   },
   methods: {
     // onDrop(event, list) {
