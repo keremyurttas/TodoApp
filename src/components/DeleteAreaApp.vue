@@ -20,8 +20,8 @@ export default {
     onDrop(event) {
       const itemId = event.dataTransfer.getData("todoId");
 
-      const item = this.$store.state.todos.find((item) => item.key == itemId);
-      this.$store.dispatch("deleteTodo", item);
+      // const item = this.$store.state.todos.find((item) => item._id == itemId);
+      this.$store.dispatch("deleteTodo", itemId);
     },
   },
 };

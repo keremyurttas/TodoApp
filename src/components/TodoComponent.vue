@@ -57,9 +57,12 @@ export default {
     editTodo() {
       if (this.newText !== "" || this.info.color !== this.newColor) {
         let todoInfo = this.info;
-        todoInfo.newColor = this.newColor;
-        todoInfo.newText = this.newText;
-        this.$store.dispatch("editTodo", todoInfo);
+        todoInfo.color = this.newColor;
+        todoInfo.text = this.newText;
+        this.$store.dispatch("editTodo", {
+          changes: todoInfo,
+          id: this.info._id,
+        });
         this.isEditing = false;
       } else {
         alert("Edit input is empty.");

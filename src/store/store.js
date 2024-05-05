@@ -1,7 +1,8 @@
 import { createStore } from "vuex";
 import axios from "axios";
-import { api } from "@/api/api";
-import { filterFirebaseKeys } from "@/utils/utils";
+// import { api } from "@/api/api";
+const BASE_URL = "http://localhost:8080/todos";
+// import { getRandomHexCode } from "@/utils/utils";
 
 export default createStore({
   state: {
@@ -14,6 +15,7 @@ export default createStore({
     },
     getBarValue(state) {
       let allTodos = state.todos;
+
       let completedTodos = allTodos.filter((todo) => todo.completed == true);
       let progress = Math.floor(
         (completedTodos.length / allTodos.length) * 100
@@ -31,6 +33,7 @@ export default createStore({
     fetchAllUncompletedTodos(state) {
       let uncompleteds = state.todos.filter((todo) => todo.completed == false);
       if (uncompleteds.length == 0) uncompleteds = false;
+      console.log(state.todos);
       return uncompleteds;
     },
     getLoadingStatus(state) {
@@ -38,29 +41,44 @@ export default createStore({
     },
   },
   mutations: {
+    setTodos(state, todos) {
+      state.todos = todos;
+    },
+    setLoadingStatus(state, currVal) {
+      state.loadingStatus = currVal;
+    },
     newTodoLocal(state, payload) {
       state.todos.push(payload);
       console.log(state.todos);
       state.loadingStatus = false;
     },
     deleteTodoLocal(state, payload) {
-      let todos = state.todos;
-      let index = todos.findIndex((todo) => todo.key == payload.key);
-      console.log(index);
-      todos.splice(index, 1);
-      console.log(todos);
-      state.todos = todos;
+      this.commit(
+        "setTodos",
+        state.todos.filter((todo) => todo._id !== payload)
+      );
+      this.commit("setLoadingStatus", false);
+      // let todos = state.todos;
+      // let index = todos.findIndex((todo) => todo.key == payload.key);
+      // console.log(index);
+      // todos.splice(index, 1);
+      // console.log(todos);
+      // state.todos = todos;
+    },
+    changeComplateStatusOfTodoLocal(state, payload) {
+      const completedTodo = state.todos.find((todo) => todo._id == payload.id);
+      console.log(completedTodo, payload);
+      completedTodo.completed = payload.completeStatus;
       state.loadingStatus = false;
     },
     completeTodoLocal(state, payload) {
-      let completedTodo = state.todos.find((todo) => todo.key == payload.key);
+      const completedTodo = state.todos.find((todo) => todo._id == payload);
       completedTodo.completed = true;
       state.loadingStatus = false;
     },
     editTodoLocal(state, payload) {
-      let editedTodo = state.todos.find((todo) => todo.key == payload.key);
-      editedTodo.text = payload.newText;
-      editedTodo.color = payload.newColor;
+      let editedTodo = state.todos.find((todo) => todo._id == payload.id);
+      Object.assign(editedTodo, payload.changes);
       state.loadingStatus = false;
     },
     uncompleteTodoLocal(state, payload) {
@@ -70,109 +88,100 @@ export default createStore({
     },
   },
   actions: {
-    async fetchData({ state }) {
-      state.loadingStatus = true;
-      const [error, data] = await api({ method: "get", URL: "/.json" });
-      // state.allDiscussions = data;
-
-      console.log("data:", data);
-      let todos = data;
-
-      todos = filterFirebaseKeys(data);
-      this.state.todos = todos;
-      console.log(state);
-      return error;
+    async fetchData() {
+      this.commit("setLoadingStatus", true);
+      try {
+        const response = await axios.get(BASE_URL);
+        const todos = response.data.todos; // Extracting todos array from the response
+        this.commit("setTodos", todos); // Committing mutation to update state
+      } catch (error) {
+        console.error("Error fetching todos:", error);
+      }
     },
-    async newTodo({ state }, payload) {
-      state.loadingStatus = true;
-      await axios
-        .post(
-          "https://todoa-6e60d-default-rtdb.firebaseio.com/todos.json",
-          payload
-        )
-        .then((data) => {
-          console.log(data);
-          let todo = payload;
-          todo.key = data.data.name;
-          console.log(todo);
-          this.commit("newTodoLocal", todo);
-        });
-
-      // const [error, data] = await api({
-      //   method: "post",
-      //   URL: ".json",
-      //   body: { sa: "payload" },
-      // });
-
-      console.log(state);
-    },
-    async deleteTodo({ state }, payload) {
-      state.loadingStatus = true;
-      const [error, data] = await api({
-        method: "delete",
-        URL: `${payload.key}.json`,
+    async newTodo(content, payload) {
+      this.commit("setLoadingStatus", true);
+      console.log(payload);
+      await axios.post(BASE_URL, payload).then((data) => {
+        console.log(data);
+        let todo = payload;
+        todo._id = data.data.post._id;
+        this.commit("newTodoLocal", todo);
       });
-      console.log(data);
-      console.log(state);
-      if (error) console.log(error);
-      this.commit("deleteTodoLocal", payload);
     },
-    async completeTodo({ state }, payload) {
-      state.loadingStatus = true;
-      axios
-        .put(
-          `https://todoa-6e60d-default-rtdb.firebaseio.com/todos/${payload.key}.json`,
-          {
-            text: payload.text,
-            completed: true,
-          }
-        )
-        .then((resp) => {
-          this.commit("completeTodoLocal", payload);
-          console.log(resp);
-          console.log(state);
-          console.log(payload);
-        });
+    async deleteTodo(context, payload) {
+      this.commit("setLoadingStatus", true);
+      await axios.delete(`${BASE_URL}/${payload}`).then(() => {
+        this.commit("deleteTodoLocal", payload);
+      });
+      // state.loadingStatus = true;
       // const [error, data] = await api({
-      //   method: "put",
+      //   method: "delete",
       //   URL: `${payload.key}.json`,
       // });
       // console.log(data);
       // console.log(state);
-      // if (error);
+      // if (error) console.log(error);
     },
+    async changeComplateStatusOfTodo(content, payload) {
+      this.commit("setLoadingStatus", true);
+      axios
+        .put(`${BASE_URL}/${payload.id}`, {
+          completed: payload.isCompleted,
+        })
+        .then(() => {
+          this.commit("changeComplateStatusOfTodoLocal", {
+            id: payload.id,
+            completeStatus: payload.isCompleted,
+          });
+        });
+    },
+    // async completeTodo({ state }, payload) {
+    //   this.commit("setLoadingStatus", true);
+    //   axios
+    //     .put(`${BASE_URL}/${payload}`, {
+    //       completed: true,
+    //     })
+    //     .then((resp) => {
+    //       this.commit("changeComplateStatusOfTodoLocal", {
+    //         id: payload,
+    //         completeStatus: true,
+    //       });
+    //       console.log(resp);
+    //       console.log(state);
+    //       console.log(payload);
+    //     });
+    //   // const [error, data] = await api({
+    //   //   method: "put",
+    //   //   URL: `${payload.key}.json`,
+    //   // });
+    //   // console.log(data);
+    //   // console.log(state);
+    //   // if (error);
+    // },
     async editTodo({ state }, payload) {
-      state.loadingStatus = true;
-      axios
-        .put(
-          `https://todoa-6e60d-default-rtdb.firebaseio.com/todos/${payload.key}.json`,
-          {
-            color: payload.newColor,
-            text: payload.newText,
-            completed: false,
-          }
-        )
-        .then(() => {
-          console.log(state);
-          console.log(payload);
-          this.commit("editTodoLocal", payload);
-        });
+      this.commit("setLoadingStatus", true);
+      console.log("pload is", payload);
+      axios.put(`${BASE_URL}/${payload.id}`, payload.changes).then(() => {
+        console.log(state);
+        console.log(payload);
+        this.commit("editTodoLocal", payload);
+      });
     },
-    async uncompletedTodo({ state }, payload) {
-      state.loadingStatus = true;
-      axios
-        .put(
-          `https://todoa-6e60d-default-rtdb.firebaseio.com/todos/${payload.key}.json`,
-          {
-            text: payload.newText,
-            completed: false,
-          }
-        )
-        .then(() => {
-          console.log(state);
-          console.log(payload);
-          this.commit("uncompleteTodoLocal", payload);
-        });
-    },
+    // async uncompletedTodo({ state }, payload) {
+    //   state.loadingStatus = true;
+    //   axios
+    //     .put(
+    //       `https://todoa-6e60d-default-rtdb.firebaseio.com/todos/${payload.key}.json`,
+    //       {
+    //         text: payload.newText,
+    //         completed: false,
+    //       }
+    //     )
+    //     .then(() => {
+    //       console.log(state);
+    //       console.log(payload);
+    //       this.commit("uncompleteTodoLocal", payload);
+    //     });
+    // },
   },
 });

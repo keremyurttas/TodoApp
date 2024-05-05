@@ -72,8 +72,12 @@ export default {
   methods: {
     onDrop(event) {
       const itemId = event.dataTransfer.getData("todoId");
-      const item = this.$store.state.todos.find((item) => item.key == itemId);
-      this.$store.dispatch("completeTodo", item);
+      // const item = this.$store.state.todos.find((item) => item.key == itemId);
+      // this.$store.dispatch("completeTodo", itemId);
+      this.$store.dispatch("changeComplateStatusOfTodo", {
+        id: itemId,
+        isCompleted: true,
+      });
     },
     startDrag(event, item) {
       startDrag(event, item);

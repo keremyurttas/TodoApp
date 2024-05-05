@@ -16,6 +16,7 @@
   </div>
 </template>
 <script>
+import { getRandomHexCode } from "@/utils/utils";
 export default {
   data() {
     return {
@@ -30,7 +31,7 @@ export default {
         this.$store.dispatch("newTodo", {
           text: this.text,
           completed: false,
-          color: "#FED99B",
+          color: getRandomHexCode(),
           //for create random colors
           //"#"  +((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0"),
         });

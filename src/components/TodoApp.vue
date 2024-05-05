@@ -12,7 +12,6 @@
         id="container"
       >
         <todo-component
-          id="sa"
           :key="index"
           v-for="(item, index) in fetchAllUncompletedTodos"
           :info="item"
@@ -81,11 +80,12 @@ export default {
     // },
     onDrop(event) {
       const itemId = event.dataTransfer.getData("todoId");
-      const item = this.$store.state.todos.find((item) => item.key == itemId);
+      // const item = this.$store.state.todos.find((item) => item.key == itemId);
 
-      if (item.completed == true) {
-        this.$store.dispatch("uncompletedTodo", item);
-      }
+      this.$store.dispatch("changeComplateStatusOfTodo", {
+        id: itemId,
+        isCompleted: false,
+      });
     },
     startDrag(event, item) {
       startDrag(event, item);
