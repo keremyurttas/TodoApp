@@ -15,13 +15,7 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true }).then(() => {
 mongoose.connection.on("error", (error) => {
   console.log(`Database connection error: ${error.message}`);
 });
-app.use(
-  cors({
-    origin: ["https://todo-app-jet-two-99.vercel.app"],
-    methods: ["POST", "GET", "PUT"],
-    credentials: true,
-  })
-);
+app.use(cors());
 app.use(bodyParser.json());
 app.use(morgan("dev"));
 app.use("/", routes);
