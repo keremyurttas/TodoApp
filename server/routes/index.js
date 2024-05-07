@@ -9,9 +9,12 @@ const {
 
 const router = express.Router();
 
+router.get("/",(req,res)=>{
+  res.end('Welcome...')
+})
 router.get("/todos", getTodos);
 router.post("/todos", createValidator, createTodo);
 router.delete("/todos/:id", deleteTodo);
 router.put("/todos/:id", updateTodo);
-
+//
 module.exports = router;

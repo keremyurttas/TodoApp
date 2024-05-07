@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const http = require("http");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 const routes = require("./routes");
@@ -22,6 +23,9 @@ app.use("/", routes);
 // app.use(expressValidator());
 const port = process.env.PORT || 8080;
 
-app.listen(port, () => {
+//create http server
+const server = http.createServer(app);
+
+server.listen(port, () => {
   console.log("Backend server running on port", port);
 });
