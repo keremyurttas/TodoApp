@@ -1,7 +1,8 @@
 import { createStore } from "vuex";
 import axios from "axios";
 // import { api } from "@/api/api";
-const BASE_URL = "https://todo-app-api-new-yusikerems-projects.vercel.app/todos";
+const BASE_URL =
+  "https://todo-app-api-new-yusikerems-projects.vercel.app/todos";
 // import { getRandomHexCode } from "@/utils/utils";
 
 export default createStore({
