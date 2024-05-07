@@ -25,6 +25,11 @@ app.use(morgan("dev"));
 app.use("/", routes);
 // app.use(expressValidator());
 
-module.exports = app; // Export the Express app
+const port = process.env.PORT || 8080;
 
-// You don't need app.listen() here
+//create http server
+const server = http.createServer(app);
+
+server.listen(port, () => {
+  console.log("Backend server running on port", port);
+});
